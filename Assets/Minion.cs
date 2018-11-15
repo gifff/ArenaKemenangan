@@ -14,8 +14,30 @@ public class Minion : MonoBehaviour
 		CurrentY = y;
 	}
 
-	public bool PossibleMove(int x, int y)
+	public bool[,] PossibleMove(int step)
 	{
-		return true;
+
+		// int step = 3;
+		// return new bool[15,15];
+		bool[,] r = new bool[15, 15];
+
+		for (int i = Mathf.Max(0, CurrentX-step-1); i < Mathf.Min(15, CurrentX+step+1); i++)
+		{
+			for(int j = Mathf.Max(0, CurrentY-step-1); j < Mathf.Min(15, CurrentY+step+1); j++)
+			{
+				if (manhattanDistance(i, j, CurrentX, CurrentY) == step)
+				{
+					r[i,j] = true;
+				}
+			}
+		}
+
+
+		return r;
+	}
+
+	private int manhattanDistance(int x1, int y1, int x2, int y2)
+	{
+		return Mathf.Abs(x1-x2) + Mathf.Abs(y1-y2);
 	}
 }
