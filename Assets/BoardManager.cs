@@ -6,6 +6,22 @@ using UnityEngine.UI;
 public class BoardManager : MonoBehaviour
 {
 
+  /* Camera Movement:
+  7.5  10 -0.5 (rot: 60  0   0)
+  15.5 10  7.5 (rot: 60 -90  0)
+  7.5  10 15.5 (rot: 60 -180 0)
+  -0.5 10  7.5 (rot: 60 -270 0)
+
+   */
+
+  public Camera camera;
+
+  private float[,] cameraPositions = new float[4, 6] {
+    {7.5f , 10f, -0.5f, 60f,  0f  , 0f},
+    {15.5f, 10f,  7.5f, 60f, -90f , 0f},
+    {7.5f , 10f, 15.5f, 60f, -180f, 0f},
+    {-0.5f, 10f,  7.5f, 60f, -270f, 0f}
+  };
   public static BoardManager Instance { set; get; }
 
   private bool[,] allowedMoves { set; get; }
@@ -59,6 +75,32 @@ public class BoardManager : MonoBehaviour
     }
   }
 
+  private void LateUpdate()
+  {
+// camera.transform.rotation = Quaternion.RotateTowards(
+    //   camera.transform.rotation,
+    //   Quaternion.Euler(cameraPositions[playerTurn, 3], cameraPositions[playerTurn, 4], cameraPositions[playerTurn, 5]),
+    //   3 * Time.deltaTime
+    //   );
+
+    camera.transform.rotation = Quaternion.Lerp(
+      camera.transform.rotation,
+      Quaternion.Euler(cameraPositions[playerTurn, 3], cameraPositions[playerTurn, 4], cameraPositions[playerTurn, 5]),
+      Time.maximumDeltaTime - Time.smoothDeltaTime
+    );    
+
+    // camera.transform.position = Vector3.MoveTowards(
+    //   camera.transform.position,
+    //   new Vector3(cameraPositions[playerTurn, 0], cameraPositions[playerTurn, 1], cameraPositions[playerTurn, 2]),
+    //   0.1f
+    //   );
+    camera.transform.position = Vector3.Lerp(
+      camera.transform.position,
+      new Vector3(cameraPositions[playerTurn, 0], cameraPositions[playerTurn, 1], cameraPositions[playerTurn, 2]),
+      Time.maximumDeltaTime - Time.smoothDeltaTime
+    );
+  }
+
   private void SelectMinion(int x, int y)
   {
     if (Minions[x, y] == null)
@@ -89,13 +131,36 @@ public class BoardManager : MonoBehaviour
       selectedMinion.transform.position = GetTileCenter(x, y);
       selectedMinion.SetPosition(x, y);
       Minions[x, y] = selectedMinion;
-      playerTurn = (playerTurn + 1) % 4;
+      // playerTurn = (playerTurn + 1) % 4;
+      UpdateNextTurn();
       RollDice();
     }
 
     BoardHighlights.Instance.HideHighlights();
     selectedMinion = null;
 
+  }
+
+  private void UpdateNextTurn()
+  {
+
+    int nextPlayerTurn = (playerTurn + 1) % 4;
+
+    // stop when there's only one minion left
+    if (activeMinion.Count == 1)
+      return;
+
+    foreach (GameObject go in activeMinion)
+    {
+      Minion m = go.GetComponent<Minion>();
+      if (m.player == nextPlayerTurn)
+      {
+        playerTurn = nextPlayerTurn;
+        return;
+      }
+    }
+    playerTurn = nextPlayerTurn;
+    UpdateNextTurn();
   }
 
   private void RollDice()
