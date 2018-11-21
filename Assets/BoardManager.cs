@@ -31,6 +31,7 @@ public class BoardManager : MonoBehaviour
 
   public Minion[,] Minions { set; get; }
   private Minion selectedMinion;
+  private int[] remainMinions = new int[4] { 4, 4, 4, 4 };
 
   private int selectionX = -1;
   private int selectionY = -1;
@@ -77,7 +78,7 @@ public class BoardManager : MonoBehaviour
 
   private void LateUpdate()
   {
-// camera.transform.rotation = Quaternion.RotateTowards(
+    // camera.transform.rotation = Quaternion.RotateTowards(
     //   camera.transform.rotation,
     //   Quaternion.Euler(cameraPositions[playerTurn, 3], cameraPositions[playerTurn, 4], cameraPositions[playerTurn, 5]),
     //   3 * Time.deltaTime
@@ -87,7 +88,7 @@ public class BoardManager : MonoBehaviour
       camera.transform.rotation,
       Quaternion.Euler(cameraPositions[playerTurn, 3], cameraPositions[playerTurn, 4], cameraPositions[playerTurn, 5]),
       Time.maximumDeltaTime - Time.smoothDeltaTime
-    );    
+    );
 
     // camera.transform.position = Vector3.MoveTowards(
     //   camera.transform.position,
@@ -132,6 +133,10 @@ public class BoardManager : MonoBehaviour
       selectedMinion.SetPosition(x, y);
       Minions[x, y] = selectedMinion;
       // playerTurn = (playerTurn + 1) % 4;
+
+      // spawn more minions
+      SpawnRemainingMinions();
+
       UpdateNextTurn();
       RollDice();
     }
@@ -185,6 +190,30 @@ public class BoardManager : MonoBehaviour
     {
       selectionX = -1;
       selectionY = -1;
+    }
+  }
+
+  private void SpawnRemainingMinions()
+  {
+    if (Minions[7, 0] == null && remainMinions[0] > 0)
+    {
+      remainMinions[0]--;
+      SpawnMinion(0, 7, 0);
+    }
+    else if (Minions[14, 7] == null && remainMinions[1] > 0)
+    {
+      remainMinions[1]--;
+      SpawnMinion(1, 14, 7);
+    }
+    else if (Minions[7, 14] == null && remainMinions[2] > 0)
+    {
+      remainMinions[2]--;
+      SpawnMinion(2, 7, 14);
+    }
+    else if (Minions[0, 7] == null && remainMinions[3] > 0)
+    {
+      remainMinions[3]--;
+      SpawnMinion(3, 0, 7);
     }
   }
 

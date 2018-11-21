@@ -21,11 +21,14 @@ public class Minion : MonoBehaviour
 		// return new bool[15,15];
 		bool[,] r = new bool[15, 15];
 
+		Minion m;
+
 		for (int i = Mathf.Max(0, CurrentX-step-1); i < Mathf.Min(15, CurrentX+step+1); i++)
 		{
 			for(int j = Mathf.Max(0, CurrentY-step-1); j < Mathf.Min(15, CurrentY+step+1); j++)
 			{
-				if (manhattanDistance(i, j, CurrentX, CurrentY) == step)
+				m = BoardManager.Instance.Minions[i, j];
+				if (manhattanDistance(i, j, CurrentX, CurrentY) == step && (m == null || m.player != this.player))
 				{
 					r[i,j] = true;
 				}
