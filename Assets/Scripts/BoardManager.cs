@@ -43,12 +43,22 @@ public class BoardManager : MonoBehaviour
 
   public int playerTurn = 0;
 
+  private Player[] players;
+
   public Text Dice;
   private int dice;
 
   private void Start()
   {
     Instance = this;
+
+    players = new Player[] {
+      new Player(1),
+      new Player(2),
+      new Player(3),
+      new Player(4)
+    };
+
     SpawnAllMinions();
     RollDice();
   }
@@ -134,6 +144,14 @@ public class BoardManager : MonoBehaviour
       Minions[x, y] = selectedMinion;
       // playerTurn = (playerTurn + 1) % 4;
 
+      // check if minion is in the center (pick power)
+      if (x == 7 && y == 7)
+      {
+        selectedMinion.hasPower = true;
+      }
+
+      // CheckDefeating();
+
       // spawn more minions
       SpawnRemainingMinions();
 
@@ -195,22 +213,22 @@ public class BoardManager : MonoBehaviour
 
   private void SpawnRemainingMinions()
   {
-    if (Minions[7, 0] == null && remainMinions[0] > 0)
+    if (Minions[7, 0] == null && remainMinions[0] > 0 && !players[0].hasDefeated)
     {
       remainMinions[0]--;
       SpawnMinion(0, 7, 0);
     }
-    else if (Minions[14, 7] == null && remainMinions[1] > 0)
+    else if (Minions[14, 7] == null && remainMinions[1] > 0 && !players[1].hasDefeated)
     {
       remainMinions[1]--;
       SpawnMinion(1, 14, 7);
     }
-    else if (Minions[7, 14] == null && remainMinions[2] > 0)
+    else if (Minions[7, 14] == null && remainMinions[2] > 0 && !players[2].hasDefeated)
     {
       remainMinions[2]--;
       SpawnMinion(2, 7, 14);
     }
-    else if (Minions[0, 7] == null && remainMinions[3] > 0)
+    else if (Minions[0, 7] == null && remainMinions[3] > 0 && !players[3].hasDefeated)
     {
       remainMinions[3]--;
       SpawnMinion(3, 0, 7);
@@ -275,6 +293,18 @@ public class BoardManager : MonoBehaviour
     SpawnMinion(3, 0, 7);
 
   }
+
+  // private void CheckDefeating()
+  // {
+  //   Player p;
+  //   for(int i = 0; i < players.Length; i++)
+  //   {
+  //     if (i == playerTurn)
+  //       continue;
+  //     p = players[i];
+      
+  //   }
+  // }
 
   private Vector3 GetTileCenter(int x, int y)
   {

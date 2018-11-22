@@ -8,6 +8,8 @@ public class Minion : MonoBehaviour
 	public int CurrentY{set;get;}
 	public int player;
 
+	public bool hasPower {set; get;}
+
 	public void SetPosition(int x, int y) 
 	{
 		CurrentX = x;
