@@ -14,6 +14,10 @@ public class BoardManager : MonoBehaviour
 
    */
 
+   // TODOS
+   // TODO: highlight enemy base with RED color when minion can capture base
+   // TODO: update possible move to exclude enemy's base when minion has no power
+
   public Camera camera;
 
   private float[,] cameraPositions = new float[4, 6] {
@@ -58,6 +62,21 @@ public class BoardManager : MonoBehaviour
       new Player(3),
       new Player(4)
     };
+    players[0].baseX = 7;
+    players[0].baseY = 0;
+    players[0].hasDefeated = false;
+
+    players[1].baseX = 14;
+    players[1].baseY = 7;
+    players[1].hasDefeated = false;
+
+    players[2].baseX = 7;
+    players[2].baseY = 14;
+    players[2].hasDefeated = false;
+
+    players[3].baseX = 0;
+    players[3].baseY = 7;
+    players[3].hasDefeated = false;
 
     SpawnAllMinions();
     RollDice();
@@ -150,7 +169,7 @@ public class BoardManager : MonoBehaviour
         selectedMinion.hasPower = true;
       }
 
-      // CheckDefeating();
+      CheckDefeating();
 
       // spawn more minions
       SpawnRemainingMinions();
@@ -294,17 +313,47 @@ public class BoardManager : MonoBehaviour
 
   }
 
-  // private void CheckDefeating()
-  // {
-  //   Player p;
-  //   for(int i = 0; i < players.Length; i++)
-  //   {
-  //     if (i == playerTurn)
-  //       continue;
-  //     p = players[i];
-      
-  //   }
-  // }
+  private void CheckDefeating()
+  {
+    Player p;
+    Minion m;
+    for(int i = 0; i < players.Length; i++)
+    {
+      if (i == playerTurn)
+        continue;
+      p = players[i];
+      m = Minions[p.baseX, p.baseY];
+      if (!p.hasDefeated && m != null && m.hasPower && m.player != i) {
+        // set player defeat state
+        p.hasDefeated = true;
+        remainMinions[i] = 0;
+        DestroyPlayerMinions(i);
+
+        // reset minion power
+        m.hasPower = false;
+      }
+    }
+  }
+
+  private void DestroyPlayerMinions(int player)
+  {
+    Minion m;
+    Debug.Log("Player: " + player + ": has been defeated");
+    for(int i = 0 ; i < TILE_COUNT; i++){
+      for(int j = 0; j < TILE_COUNT; j++) {
+        m = Minions[i,j];
+        if (m != null && m.player == player) {
+          activeMinion.Remove(m.gameObject);
+          Destroy(m.gameObject);
+          Minions[i,j] = null;
+        }
+        
+
+      }
+    }
+  }
+
+
 
   private Vector3 GetTileCenter(int x, int y)
   {
