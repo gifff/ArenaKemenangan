@@ -16,12 +16,12 @@ public class Minion : MonoBehaviour
 		CurrentY = y;
 	}
 
-	public bool[,] PossibleMove(int step)
+	public bool[,,] PossibleMove(int step)
 	{
 
 		// int step = 3;
 		// return new bool[15,15];
-		bool[,] r = new bool[15, 15];
+		bool[,,] r = new bool[15, 15, 2];
 
 		Minion m;
 
@@ -32,7 +32,8 @@ public class Minion : MonoBehaviour
 				m = BoardManager.Instance.Minions[i, j];
 				if (manhattanDistance(i, j, CurrentX, CurrentY) == step && (m == null || m.player != this.player))
 				{
-					r[i,j] = true;
+					r[i,j,0] = true;
+					r[i,j,1] = m != null; // m is other player's minion
 				}
 			}
 		}

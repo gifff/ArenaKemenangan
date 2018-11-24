@@ -28,7 +28,7 @@ public class BoardManager : MonoBehaviour
   };
   public static BoardManager Instance { set; get; }
 
-  private bool[,] allowedMoves { set; get; }
+  private bool[,,] allowedMoves { set; get; }
   private const float TILE_SIZE = 1.0f;
   private const float TILE_OFFSET = 0.5f;
   private const int TILE_COUNT = 15;
@@ -146,7 +146,7 @@ public class BoardManager : MonoBehaviour
 
   private void MoveMinion(int x, int y)
   {
-    if (allowedMoves[x, y])
+    if (allowedMoves[x, y, 0])
     {
       Minion m = Minions[x, y];
 
