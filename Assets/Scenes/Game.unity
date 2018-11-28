@@ -950,3 +950,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   highlightPrefab: {fileID: 1476035031791802, guid: df8ee2a49e7234b65a73d0ba078d0216,
     type: 2}
+  redHighlightPrefab: {fileID: 1476035031791802, guid: 72fbf06f0f074438aba243c4da6ef65a,
+    type: 2}

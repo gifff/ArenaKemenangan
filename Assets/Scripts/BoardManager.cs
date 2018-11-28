@@ -14,9 +14,9 @@ public class BoardManager : MonoBehaviour
 
    */
 
-   // TODOS
-   // TODO: highlight enemy base with RED color when minion can capture base
-   // TODO: update possible move to exclude enemy's base when minion has no power
+  // TODOS
+  // highlight enemy base with RED color when minion can capture base [done]
+  // update possible move to exclude enemy's base when minion has no power [done]
 
   public Camera camera;
 
@@ -47,10 +47,12 @@ public class BoardManager : MonoBehaviour
 
   public int playerTurn = 0;
 
-  private Player[] players;
+  public Player[] players;
 
   public Text Dice;
   private int dice;
+
+  public List<Minion> midStack = new List<Minion>();
 
   private void Start()
   {
@@ -158,10 +160,10 @@ public class BoardManager : MonoBehaviour
       }
 
       Minions[selectedMinion.CurrentX, selectedMinion.CurrentY] = null;
-      selectedMinion.transform.position = GetTileCenter(x, y);
-      selectedMinion.SetPosition(x, y);
-      Minions[x, y] = selectedMinion;
       // playerTurn = (playerTurn + 1) % 4;
+      selectedMinion.SetPosition(x, y);
+      selectedMinion.transform.position = GetTileCenter(x, y);
+      Minions[x, y] = selectedMinion;
 
       // check if minion is in the center (pick power)
       if (x == 7 && y == 7)
@@ -173,14 +175,41 @@ public class BoardManager : MonoBehaviour
 
       // spawn more minions
       SpawnRemainingMinions();
+      HideMiddleMinion();
 
       UpdateNextTurn();
+      ShowCurrentPlayerMiddleMinion();
       RollDice();
     }
 
     BoardHighlights.Instance.HideHighlights();
     selectedMinion = null;
 
+  }
+
+  private void HideMiddleMinion()
+  {
+    Minion m = Minions[7, 7];
+    if (m == null)
+      return;
+    if (m.CurrentX == 7 && m.CurrentY == 7) {
+      // Add to midstack
+      midStack.Add(m);
+      m.gameObject.SetActive(false);
+      Minions[7, 7] = null;
+    }
+  }
+
+  private void ShowCurrentPlayerMiddleMinion() 
+  {
+    foreach(Minion m in midStack) {
+      if(m.player == playerTurn) {
+        m.gameObject.SetActive(true);
+        Minions[7, 7] = m;
+        midStack.Remove(m);
+        return;
+      }
+    }
   }
 
   private void UpdateNextTurn()
@@ -317,13 +346,14 @@ public class BoardManager : MonoBehaviour
   {
     Player p;
     Minion m;
-    for(int i = 0; i < players.Length; i++)
+    for (int i = 0; i < players.Length; i++)
     {
       if (i == playerTurn)
         continue;
       p = players[i];
       m = Minions[p.baseX, p.baseY];
-      if (!p.hasDefeated && m != null && m.hasPower && m.player != i) {
+      if (!p.hasDefeated && m != null && m.hasPower && m.player != i)
+      {
         // set player defeat state
         p.hasDefeated = true;
         remainMinions[i] = 0;
@@ -339,15 +369,18 @@ public class BoardManager : MonoBehaviour
   {
     Minion m;
     Debug.Log("Player: " + player + ": has been defeated");
-    for(int i = 0 ; i < TILE_COUNT; i++){
-      for(int j = 0; j < TILE_COUNT; j++) {
-        m = Minions[i,j];
-        if (m != null && m.player == player) {
+    for (int i = 0; i < TILE_COUNT; i++)
+    {
+      for (int j = 0; j < TILE_COUNT; j++)
+      {
+        m = Minions[i, j];
+        if (m != null && m.player == player)
+        {
           activeMinion.Remove(m.gameObject);
           Destroy(m.gameObject);
-          Minions[i,j] = null;
+          Minions[i, j] = null;
         }
-        
+
 
       }
     }
