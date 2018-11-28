@@ -16,6 +16,18 @@ public class Minion : MonoBehaviour
 		CurrentY = y;
 	}
 
+	private bool isOtherPlayerBasePosition(int x, int y) 
+	{
+		for(int i = 0; i < BoardManager.Instance.players.Length; i++) {
+			if (i == player)
+				continue;
+
+			if (BoardManager.Instance.players[i].baseX == x && BoardManager.Instance.players[i].baseY == y)
+				return true;
+		}
+		return false;
+	}
+
 	public bool[,,] PossibleMove(int step)
 	{
 
@@ -32,8 +44,14 @@ public class Minion : MonoBehaviour
 				m = BoardManager.Instance.Minions[i, j];
 				if (manhattanDistance(i, j, CurrentX, CurrentY) == step && (m == null || m.player != this.player))
 				{
+					bool isOtherBase = isOtherPlayerBasePosition(i, j);
+					if (isOtherBase && !hasPower)
+						continue;
 					r[i,j,0] = true;
-					r[i,j,1] = m != null; // m is other player's minion
+					// TRUE when m is other player's minion
+					// OR
+					// [i,j] is other player base position
+					r[i,j,1] = m != null || isOtherBase;
 				}
 			}
 		}
