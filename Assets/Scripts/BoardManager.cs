@@ -157,6 +157,9 @@ public class BoardManager : MonoBehaviour
         // Capture a piece
         activeMinion.Remove(m.gameObject);
         Destroy(m.gameObject);
+        AudioManager.Instance.PlayKillSfx();
+      } else {
+        AudioManager.Instance.PlayMoveSfx();
       }
 
       Minions[selectedMinion.CurrentX, selectedMinion.CurrentY] = null;
