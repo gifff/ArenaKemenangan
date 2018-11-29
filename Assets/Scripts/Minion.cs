@@ -22,7 +22,9 @@ public class Minion : MonoBehaviour
 			if (i == player)
 				continue;
 
-			if (BoardManager.Instance.players[i].baseX == x && BoardManager.Instance.players[i].baseY == y)
+			Player p = BoardManager.Instance.players[i];
+			// if the player is defeated, it is no man's land
+			if (p.baseX == x && p.baseY == y && !p.hasDefeated)
 				return true;
 		}
 		return false;

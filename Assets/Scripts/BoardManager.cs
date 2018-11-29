@@ -346,13 +346,17 @@ public class BoardManager : MonoBehaviour
   {
     Player p;
     Minion m;
+    int playersWithMinion = 0;
     for (int i = 0; i < players.Length; i++)
     {
       if (i == playerTurn)
         continue;
       p = players[i];
+      if (p.hasDefeated)
+        continue;
+
       m = Minions[p.baseX, p.baseY];
-      if (!p.hasDefeated && m != null && m.hasPower && m.player != i)
+      if (/* !p.hasDefeated &&  */m != null && m.hasPower && m.player != i)
       {
         // set player defeat state
         p.hasDefeated = true;
@@ -361,7 +365,33 @@ public class BoardManager : MonoBehaviour
 
         // reset minion power
         m.hasPower = false;
+
+        continue;
       }
+
+      bool hasMinion = false;
+
+      // check when player has no more minions
+      foreach(GameObject go in activeMinion) {
+        Minion m2 = go.GetComponent<Minion>();
+        if (m2.player == i) {
+          hasMinion = true; 
+          break;
+        }
+      }
+      if(hasMinion){
+        playersWithMinion++;
+      } else {
+        Debug.Log("Player: " + i + " has no more minion");
+        p.hasDefeated = true;
+      }
+    }
+
+    // Check for winning condition
+    // value is 0 because current player turn is not included
+    if(playersWithMinion == 0) {
+      Debug.Log("winning condition");
+      Debug.Log("Player (" + (playerTurn+1) + ") Wins the game!");
     }
   }
 
@@ -384,9 +414,22 @@ public class BoardManager : MonoBehaviour
 
       }
     }
+
+    Minion m3 = null;
+    // destroy players in midstack
+    foreach(Minion m2 in midStack) {
+      if (m2.player == player) 
+      {
+        m3 = m2;
+        break;
+      }
+    }
+    if (m3 != null) {
+        midStack.Remove(m3);
+        activeMinion.Remove(m3.gameObject);
+        Destroy(m3.gameObject);
+    }
   }
-
-
 
   private Vector3 GetTileCenter(int x, int y)
   {
