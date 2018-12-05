@@ -29,9 +29,10 @@ public class BoardManager : MonoBehaviour
   public static BoardManager Instance { set; get; }
 
   private bool[,,] allowedMoves { set; get; }
-  private const float TILE_SIZE = 1.0f;
-  private const float TILE_OFFSET = 0.5f;
+  public const float TILE_SIZE = 1.0f;
+  public const float TILE_OFFSET = 0.5f;
   private const int TILE_COUNT = 15;
+  private float MINION_OFFSET_FIX = 0.7f + TILE_OFFSET;
 
   public Minion[,] Minions { set; get; }
   private Minion selectedMinion;
@@ -43,7 +44,9 @@ public class BoardManager : MonoBehaviour
   public List<GameObject> minionPrefabs;
   private List<GameObject> activeMinion;
 
-  private Quaternion orientation = Quaternion.Euler(0, 180, 0);
+  // private Quaternion orientation = Quaternion.Euler(0, 180, 0);
+  // for new minion model
+  private Quaternion orientation = Quaternion.Euler(14.84f, 180f, 0);
 
   public int playerTurn = 0;
 
@@ -165,13 +168,13 @@ public class BoardManager : MonoBehaviour
       Minions[selectedMinion.CurrentX, selectedMinion.CurrentY] = null;
       // playerTurn = (playerTurn + 1) % 4;
       selectedMinion.SetPosition(x, y);
-      selectedMinion.transform.position = GetTileCenter(x, y);
+      selectedMinion.transform.position = GetTileCenter(selectedMinion.player, x, y);
       Minions[x, y] = selectedMinion;
 
       // check if minion is in the center (pick power)
       if (x == 7 && y == 7)
       {
-        selectedMinion.hasPower = true;
+        selectedMinion.HasPower = true;
       }
 
       CheckDefeating();
@@ -319,7 +322,7 @@ public class BoardManager : MonoBehaviour
 
   private void SpawnMinion(int index, int x, int y)
   {
-    GameObject go = Instantiate(minionPrefabs[index], GetTileCenter(x, y), orientation) as GameObject;
+    GameObject go = Instantiate(minionPrefabs[index], GetTileCenter(index, x, y), GetMinionOrientation(index)) as GameObject;
     go.transform.SetParent(transform);
     Minions[x, y] = go.GetComponent<Minion>();
     Minions[x, y].SetPosition(x, y);
@@ -359,7 +362,7 @@ public class BoardManager : MonoBehaviour
         continue;
 
       m = Minions[p.baseX, p.baseY];
-      if (/* !p.hasDefeated &&  */m != null && m.hasPower && m.player != i)
+      if (/* !p.hasDefeated &&  */m != null && m.HasPower && m.player != i)
       {
         // set player defeat state
         p.hasDefeated = true;
@@ -367,7 +370,7 @@ public class BoardManager : MonoBehaviour
         DestroyPlayerMinions(i);
 
         // reset minion power
-        m.hasPower = false;
+        m.HasPower = false;
 
         continue;
       }
@@ -434,9 +437,39 @@ public class BoardManager : MonoBehaviour
     }
   }
 
-  private Vector3 GetTileCenter(int x, int y)
+  private Quaternion GetMinionOrientation(int player)
   {
-    Vector3 origin = Vector3.zero;
+    return Quaternion.Euler(
+      orientation.eulerAngles.x,
+      player * -90f,
+      orientation.eulerAngles.z
+    );
+  }
+
+  private Vector3 GetTileCenter(int player, int x, int y)
+  {
+    // Vector3 origin = Vector3.zero;
+    Vector3 origin = new Vector3(0, -4.5f, 0f);
+    
+    // Adjust Minion position
+    switch(player) {
+      case 0: {
+        origin.z -= MINION_OFFSET_FIX;
+        break;
+      }
+      case 1: {
+        origin.x += MINION_OFFSET_FIX;
+        break;
+      }
+      case 2: {
+        origin.z += MINION_OFFSET_FIX;
+        break;
+      }
+      case 3: {
+        origin.x -= MINION_OFFSET_FIX;
+        break;
+      }
+    }
     origin.x += (TILE_SIZE * x) + TILE_OFFSET;
     origin.z += (TILE_SIZE * y) + TILE_OFFSET;
     return origin;
