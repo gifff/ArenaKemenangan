@@ -55,11 +55,16 @@ public class BoardManager : MonoBehaviour
   public Text Dice;
   private int dice;
 
+  public Text WinText;
+
   public List<Minion> midStack = new List<Minion>();
 
   private void Start()
   {
     Instance = this;
+
+    if (WinText != null)
+      WinText.enabled = false;
 
     players = new Player[] {
       new Player(1),
@@ -396,8 +401,12 @@ public class BoardManager : MonoBehaviour
     // Check for winning condition
     // value is 0 because current player turn is not included
     if(playersWithMinion == 0) {
-      Debug.Log("winning condition");
-      Debug.Log("Player (" + (playerTurn+1) + ") Wins the game!");
+      // Debug.Log("winning condition");
+      // Debug.Log("Player (" + (playerTurn+1) + ") Wins the game!");
+      if (WinText != null) {
+        WinText.enabled = true;
+        WinText.text = "Player " + (playerTurn + 1) + " Wins!";
+      }
     }
   }
 
