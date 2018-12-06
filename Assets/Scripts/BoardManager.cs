@@ -57,6 +57,8 @@ public class BoardManager : MonoBehaviour
 
   public Text WinText;
 
+  public Text PlayerTurnText;
+
   public List<Minion> midStack = new List<Minion>();
 
   private void Start()
@@ -189,6 +191,10 @@ public class BoardManager : MonoBehaviour
       HideMiddleMinion();
 
       UpdateNextTurn();
+      // Update UI
+      if (PlayerTurnText != null)
+        PlayerTurnText.text = "Player " + (playerTurn+1);
+
       ShowCurrentPlayerMiddleMinion();
       RollDice();
     }
